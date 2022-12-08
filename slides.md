@@ -26,7 +26,17 @@ css: unocss
 
 ---
 
-# An organised and consistent import structure
+# WHAT MAKES A CLEAN CODE?
+
+<div v-click style="margin-bottom: 10px">1. Easy to read</div>
+<div v-click style="margin-bottom: 10px">2. Easy to improve</div>
+<div v-click style="margin-bottom: 10px">3. Easy to fix</div>
+<div v-click style="margin-bottom: 10px">4. Easy to test</div>
+<div v-click>5. Easy to navigate around</div>
+
+---
+
+# 1. An organised and consistent import structure
 
 Framework specific imports, third party libraries and internal app modules
 should be arranged in an organised manner.
@@ -77,6 +87,210 @@ should be arranged in an organised manner.
 </div>
 </div>
 
+---
+
+# 2. Write declarative code
+
+  Declarative programming is when you write your code in such a way that it 
+  <em style='color: lightgreen'>describes</em> what you want to do, and not how you want to do it
+
+<div style="display: grid; grid-template-columns: 1fr 1fr; column-gap: 10px; margin-top: 10px">
+  <div v-click>
+  <div>BEFORE</div>
+
+  ```ts
+    if(
+       !!objectives
+      .find(
+        objective => objective?.keyResults?
+        .find(keyResult => keyResult?.reviewwer_id)
+      )
+    ) {
+      // do something
+    }
+  ```
+  </div>
+
+  <div>
+  <div v-click>
+  <div>AFTER</div>
+
+  ```ts
+    if(objectiveHasReviewer()) {
+      // do something
+    }
+  ```
+
+  </div>
+  <div v-click>
+
+  ```ts
+    const objectiveHasReviewer = () => !!objectives.find(kpiHasReviewer);
+
+    const kpiHasReviewer = (objective) => {
+      return objective?.keyResults?.find(keyResult => keyResult.reviewer_id)
+    }
+  ```
+
+  </div>
+  </div>
+</div>
+
+---
+
+# 3. Avoid mixed levels of abstraction
+
+The levels of abstraction inside a function should not be mixed
+
+<div>
+<div v-click>
+<div>BEFORE</div>
+
+```ts
+  const addToReadingList = async (resourceId) => {
+    const item = readingList.find(item => item.resource_id === resourceId);
+
+    if (item) return;
+    await READING_LIST_MODEL.addToReadingList(resourceId)
+  }
+```
+
+</div>
+
+<div style="margin-top: 20px" v-click>
+<div>AFTER</div>
+
+```ts
+
+  const addToReadingList = async (resourceId) => {
+    if (isInReadingList(resourceId)) return;
+
+    await READING_LIST_MODEL.addToReadingList(resourceId)
+  }
+```
+
+</div>
+
+<div v-click>
+
+```ts
+  // predicate functions
+  const isInReadingList = (resourceId) => !!readingList.find((item) => resourceIdMatch(item, resourceId));
+  const resourceIdMatch = (item, resourceId) => item.resource_id === resourceId;
+```
+
+</div>
+
+</div>
+
+
+---
+
+# 4. Avoid more than 3 function parameters
+Too many function params can lead to bugs.
+Instead, consider using an object.
+
+<div v-click>
+<div>BEFORE</div>
+
+```ts
+  const test = (age, location, gender, maritalStatus) => {
+    // do stuff
+  }
+```
+</div>
+
+<div style="margin-top: 20px" v-click>
+<div>AFTER</div>
+
+```ts
+
+  const test = (userDetails) => {
+    const { age, location, gender, maritalStatus } = userDetails;
+
+    // do stuff
+  }
+```
+</div>
+
+---
+
+# 5. A cleaner control flow (*Debatable*)
+
+You can avoid too many else if statements by using<br>
+the strategy pattern (my favorite)
+
+<div style="display: grid; grid-template-columns: repeat(2, 1fr); column-gap: 20px">
+<div v-click>
+  BEFORE
+
+  ```ts
+    const test = (accountType) => {
+      if (accountType === 'savings') {
+        // do something
+      } else if (accountType === 'current') {
+        // do something
+      } else if (accountType === 'fixed') {
+        // do something
+      } else if (accountType === 'merchant') {
+        // do something
+      } else if (accountType === 'flexy') {
+        // do something
+      } else if (accountType === 'seniors') {
+        // do something
+      }
+    }
+  ```
+</div>
+
+<div v-click>
+AFTER
+
+```ts
+  const accountStrategy = {
+    savings: savingsFn,
+    current: currentFn,
+    fixed: fixedFn,
+    merchant: merchantFn,
+    flexy: flexyFn,
+    seniors: seniorsFn
+  }
+
+  const test = (accountType) => {
+    accountStrategy[accountType]();
+  }
+```
+
+</div>
+
+</div>
+
+
+---
+
+# Quick reminder of some common best practices
+
+<div v-click style="margin-bottom: 10px">
+  1. Use proper indentations, white space and naming 
+  conventions to make your code clean and readable
+</div>
+<div v-click style="margin-bottom: 10px">
+  2. Avoid abbreviations and jargon
+</div>
+<div v-click style="margin-bottom: 10px">
+  3. use comments to explain complex or non-obvious 
+  parts of your code
+</div>
+<div v-click style="margin-bottom: 10px">
+  4. Use descriptive variable names
+</div>
+<div v-click style="margin-bottom: 10px">
+  5. Let your functions do one thing
+</div>
+<div v-click style="margin-bottom: 10px">
+  6. Test your code
+</div>
+
 
 
 <style>
@@ -91,321 +305,4 @@ h1 {
 }
 </style>
 
-<!--
-Here is another comment.
--->
 
----
-
-# Navigation
-
-Hover on the bottom-left corner to see the navigation's controls panel, [learn more](https://sli.dev/guide/navigation.html)
-
-### Keyboard Shortcuts
-
-|     |     |
-| --- | --- |
-| <kbd>right</kbd> / <kbd>space</kbd>| next animation or slide |
-| <kbd>left</kbd>  / <kbd>shift</kbd><kbd>space</kbd> | previous animation or slide |
-| <kbd>up</kbd> | previous slide |
-| <kbd>down</kbd> | next slide |
-
-<!-- https://sli.dev/guide/animations.html#click-animations -->
-<img
-  v-click
-  class="absolute -bottom-9 -left-7 w-80 opacity-50"
-  src="https://sli.dev/assets/arrow-bottom-left.svg"
-/>
-<p v-after class="absolute bottom-23 left-45 opacity-30 transform -rotate-10">Here!</p>
-
----
-layout: image-right
-image: https://source.unsplash.com/collection/94734566/1920x1080
----
-
-# Code
-
-Use code snippets and get the highlighting directly![^1]
-
-```ts {all|2|1-6|9|all}
-interface User {
-  id: number
-  firstName: string
-  lastName: string
-  role: string
-}
-
-function updateUser(id: number, update: User) {
-  const user = getUser(id)
-  const newUser = { ...user, ...update }
-  saveUser(id, newUser)
-}
-```
-
-<arrow v-click="3" x1="400" y1="420" x2="230" y2="330" color="#564" width="3" arrowSize="1" />
-
-[^1]: [Learn More](https://sli.dev/guide/syntax.html#line-highlighting)
-
-<style>
-.footnotes-sep {
-  @apply mt-20 opacity-10;
-}
-.footnotes {
-  @apply text-sm opacity-75;
-}
-.footnote-backref {
-  display: none;
-}
-</style>
-
----
-
-# Components
-
-<div grid="~ cols-2 gap-4">
-<div>
-
-You can use Vue components directly inside your slides.
-
-We have provided a few built-in components like `<Tweet/>` and `<Youtube/>` that you can use directly. And adding your custom components is also super easy.
-
-```html
-<Counter :count="10" />
-```
-
-<!-- ./components/Counter.vue -->
-<Counter :count="10" m="t-4" />
-
-Check out [the guides](https://sli.dev/builtin/components.html) for more.
-
-</div>
-<div>
-
-```html
-<Tweet id="1390115482657726468" />
-```
-
-<Tweet id="1390115482657726468" scale="0.65" />
-
-</div>
-</div>
-
-<!--
-Presenter note with **bold**, *italic*, and ~~striked~~ text.
-
-Also, HTML elements are valid:
-<div class="flex w-full">
-  <span style="flex-grow: 1;">Left content</span>
-  <span>Right content</span>
-</div>
--->
-
-
----
-class: px-20
----
-
-# Themes
-
-Slidev comes with powerful theming support. Themes can provide styles, layouts, components, or even configurations for tools. Switching between themes by just **one edit** in your frontmatter:
-
-<div grid="~ cols-2 gap-2" m="-t-2">
-
-```yaml
----
-theme: default
----
-```
-
-```yaml
----
-theme: seriph
----
-```
-
-<img border="rounded" src="https://github.com/slidevjs/themes/blob/main/screenshots/theme-default/01.png?raw=true">
-
-<img border="rounded" src="https://github.com/slidevjs/themes/blob/main/screenshots/theme-seriph/01.png?raw=true">
-
-</div>
-
-Read more about [How to use a theme](https://sli.dev/themes/use.html) and
-check out the [Awesome Themes Gallery](https://sli.dev/themes/gallery.html).
-
----
-preload: false
----
-
-# Animations
-
-Animations are powered by [@vueuse/motion](https://motion.vueuse.org/).
-
-```html
-<div
-  v-motion
-  :initial="{ x: -80 }"
-  :enter="{ x: 0 }">
-  Slidev
-</div>
-```
-
-<div class="w-60 relative mt-6">
-  <div class="relative w-40 h-40">
-    <img
-      v-motion
-      :initial="{ x: 800, y: -100, scale: 1.5, rotate: -50 }"
-      :enter="final"
-      class="absolute top-0 left-0 right-0 bottom-0"
-      src="https://sli.dev/logo-square.png"
-    />
-    <img
-      v-motion
-      :initial="{ y: 500, x: -100, scale: 2 }"
-      :enter="final"
-      class="absolute top-0 left-0 right-0 bottom-0"
-      src="https://sli.dev/logo-circle.png"
-    />
-    <img
-      v-motion
-      :initial="{ x: 600, y: 400, scale: 2, rotate: 100 }"
-      :enter="final"
-      class="absolute top-0 left-0 right-0 bottom-0"
-      src="https://sli.dev/logo-triangle.png"
-    />
-  </div>
-
-  <div
-    class="text-5xl absolute top-14 left-40 text-[#2B90B6] -z-1"
-    v-motion
-    :initial="{ x: -80, opacity: 0}"
-    :enter="{ x: 0, opacity: 1, transition: { delay: 2000, duration: 1000 } }">
-    Slidev
-  </div>
-</div>
-
-<!-- vue script setup scripts can be directly used in markdown, and will only affects current page -->
-<script setup lang="ts">
-const final = {
-  x: 0,
-  y: 0,
-  rotate: 0,
-  scale: 1,
-  transition: {
-    type: 'spring',
-    damping: 10,
-    stiffness: 20,
-    mass: 2
-  }
-}
-</script>
-
-<div
-  v-motion
-  :initial="{ x:35, y: 40, opacity: 0}"
-  :enter="{ y: 0, opacity: 1, transition: { delay: 3500 } }">
-
-[Learn More](https://sli.dev/guide/animations.html#motion)
-
-</div>
-
----
-
-# LaTeX
-
-LaTeX is supported out-of-box powered by [KaTeX](https://katex.org/).
-
-<br>
-
-Inline $\sqrt{3x-1}+(1+x)^2$
-
-Block
-$$
-\begin{array}{c}
-
-\nabla \times \vec{\mathbf{B}} -\, \frac1c\, \frac{\partial\vec{\mathbf{E}}}{\partial t} &
-= \frac{4\pi}{c}\vec{\mathbf{j}}    \nabla \cdot \vec{\mathbf{E}} & = 4 \pi \rho \\
-
-\nabla \times \vec{\mathbf{E}}\, +\, \frac1c\, \frac{\partial\vec{\mathbf{B}}}{\partial t} & = \vec{\mathbf{0}} \\
-
-\nabla \cdot \vec{\mathbf{B}} & = 0
-
-\end{array}
-$$
-
-<br>
-
-[Learn more](https://sli.dev/guide/syntax#latex)
-
----
-
-# Diagrams
-
-You can create diagrams / graphs from textual descriptions, directly in your Markdown.
-
-<div class="grid grid-cols-3 gap-10 pt-4 -mb-6">
-
-```mermaid {scale: 0.5}
-sequenceDiagram
-    Alice->John: Hello John, how are you?
-    Note over Alice,John: A typical interaction
-```
-
-```mermaid {theme: 'neutral', scale: 0.8}
-graph TD
-B[Text] --> C{Decision}
-C -->|One| D[Result 1]
-C -->|Two| E[Result 2]
-```
-
-```plantuml {scale: 0.7}
-@startuml
-
-package "Some Group" {
-  HTTP - [First Component]
-  [Another Component]
-}
-
-node "Other Groups" {
-  FTP - [Second Component]
-  [First Component] --> FTP
-}
-
-cloud {
-  [Example 1]
-}
-
-
-database "MySql" {
-  folder "This is my folder" {
-    [Folder 3]
-  }
-  frame "Foo" {
-    [Frame 4]
-  }
-}
-
-
-[Another Component] --> [Example 1]
-[Example 1] --> [Folder 3]
-[Folder 3] --> [Frame 4]
-
-@enduml
-```
-
-</div>
-
-[Learn More](https://sli.dev/guide/syntax.html#diagrams)
-
----
-src: ./pages/multiple-entries.md
-hide: false
----
-
----
-layout: center
-class: text-center
----
-
-# Learn More
-
-[Documentations](https://sli.dev) · [GitHub](https://github.com/slidevjs/slidev) · [Showcases](https://sli.dev/showcases.html)
